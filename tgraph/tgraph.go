@@ -1,9 +1,14 @@
 package tgraph
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/tctromp/graphpattern/util"
+)
 
 type Vertex struct {
 	Name     string
+	Loc      *util.Vec2
 	InEdges  []*Vertex // Directed edges into vertex
 	OutEdges []*Vertex // Directed edges out of vertex
 }

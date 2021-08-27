@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/tctromp/graphpattern/tgraph"
+	"github.com/tctromp/graphpattern/ui"
+	"github.com/tctromp/graphpattern/util"
 )
 
 func main() {
@@ -46,10 +49,28 @@ func main() {
 	vertices = append(vertices, &v7)
 	vertices = append(vertices, &v8)
 
+	minRandInt := 100
+	maxRandInt := 350
+
+	rand.Seed(2)
+
+	for _, v := range vertices {
+		randX := rand.Intn(maxRandInt-minRandInt) + 100
+		randY := rand.Intn(maxRandInt-minRandInt) + 100
+		v.Loc = &util.Vec2{X: float64(randX), Y: float64(randY)}
+	}
+
 	outputSolutions := tgraph.GetPatternSolutions(vertices, steps)
 
 	outputSolutions.PrintSolutions()
 
+	ui.InitUI(1920/2+1920/4, 1080/2+1080/4)
+
+	ui.CurGame.Graph = &tgraph.Graph{Vertices: vertices, Pinned: vertices[4]}
+
+	ui.StartUI()
+
+	fmt.Println("EndMain")
 }
 
 /*
