@@ -1,11 +1,14 @@
 package ui
 
 import (
+	"fmt"
 	"image/color"
 	"log"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/tctromp/graphpattern/tgraph"
 )
 
@@ -24,23 +27,64 @@ var vertexColor = color.RGBA{R: 231, G: 76, B: 60, A: 255}
 var pinnedVertexColor = color.RGBA{R: 46, G: 204, B: 113, A: 255}
 
 var CurGame *Game
-var vertexSize = 20.0
-var springLength = 50.0
+var vertexSize = 10.0
+var springLength = 100.0
+var totalSteps = 1
+var scale = 1.0
+var scaleSteps = 1.0
 
 type Game struct {
-	Graph *tgraph.Graph
+	Graph    *tgraph.Graph
+	Steps    []*tgraph.Step
+	NewSteps []*tgraph.Step
 }
 
 func (g *Game) Update() error {
-	CurGame.Graph.UpdateMouseEvents(vertexSize)
-	CurGame.Graph.SpringUpdate(springLength)
+	CurGame.Graph.UpdateMouseEvents(vertexSize, scale)
+
+	for i := 0; i < 10; i++ {
+		CurGame.Graph.SpringUpdate(springLength)
+
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		CurGame.Graph.RandomizeVerticesLocs(100, 600)
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
+		ebiten.SetFullscreen(!ebiten.IsFullscreen())
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		CurGame.Graph.Vertices = tgraph.UpdateFromPattern(CurGame.Graph.Vertices, CurGame.Steps, CurGame.NewSteps)
+		CurGame.Graph.RandomizeVerticesLocs(100, 600)
+		totalSteps++
+	}
+
+	_, y := ebiten.Wheel()
+	if y == -1 || inpututil.IsKeyJustPressed(ebiten.KeyNumpad8) {
+		//scale -= 0.1
+		scaleSteps += 0.25
+	} else if y == 1 || inpututil.IsKeyJustPressed(ebiten.KeyNumpad2) {
+		//scale += 0.1
+		scaleSteps -= 0.25
+
+	}
+	scale = math.Pow(scaleSteps, 2)
+	if scaleSteps < 0 {
+		scale = 1 / scale
+	}
+
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "Hello World!")
+	screen.Fill(backgroundColor)
+
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("Steps: %d\nVertices: %d", totalSteps, len(CurGame.Graph.Vertices)))
+
 	if CurGame.Graph != nil {
-		CurGame.Graph.DrawGraph(screen, vertexSize, edgeColor, vertexColor, pinnedVertexColor)
+		CurGame.Graph.DrawGraph(screen, scale, vertexSize, edgeColor, vertexColor, pinnedVertexColor)
 	}
 }
 

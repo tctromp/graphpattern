@@ -27,8 +27,16 @@ func (v1 *Vec2) Dist(v2 *Vec2) float64 {
 	return math.Sqrt(math.Pow(v1.Sub(v2).X, 2) + math.Pow(v1.Sub(v2).Y, 2))
 }
 
+func (v1 *Vec2) Dist2(v2 *Vec2) float64 {
+	return (math.Pow(v1.Sub(v2).X, 2) + math.Pow(v1.Sub(v2).Y, 2))
+}
+
 func (v1 *Vec2) Norm(v2 *Vec2) *Vec2 {
 	return v2.Sub(v1).Div(v1.Dist(v2))
+}
+
+func (v1 *Vec2) Norm2(v2 *Vec2) *Vec2 {
+	return v2.Sub(v1).Div(v1.Dist2(v2))
 }
 
 func (v1 *Vec2) Div(val float64) *Vec2 {
